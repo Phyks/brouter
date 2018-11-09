@@ -5,3 +5,7 @@ target/
 *.class
 .idea/
 *.iml
+misc/segments4
+misc/segments4.sh
+misc/profiles2/customprofiles
+*.pbf

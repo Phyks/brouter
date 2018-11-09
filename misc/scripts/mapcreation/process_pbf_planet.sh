@@ -1,17 +1,17 @@
 #!/bin/bash
 set -e
-wget -N http://planet.openstreetmap.org/pbf/planet-latest.osm.pbf
+#wget -N http://planet.openstreetmap.org/pbf/planet-latest.osm.pbf
+#
+#if test lastmaprun.date -nt planet-latest.osm.pbf; then
+#   echo "no osm update, exiting"
+#   exit 0
+#fi
+#
+#touch lastmaprun.date
+#
+#rm -rf /var/www/brouter/segments4_lastrun
 
-if test lastmaprun.date -nt planet-latest.osm.pbf; then
-   echo "no osm update, exiting"
-   exit 0
-fi
-
-touch lastmaprun.date
-
-rm -rf /var/www/brouter/segments4_lastrun
-
-JAVA='/java/bin/java -Xmx2600m -Xms2600m -Xmn32m'
+JAVA='/usr/bin/java -Xmx2600m -Xms2600m -Xmn32m'
 
 BROUTER_PROFILES=$(realpath "../../profiles2")
 
@@ -25,7 +25,7 @@ PLANET_FILE=$(realpath "./planet-latest.osm.pbf")
 # https://cgiarcsi.community/data/srtm-90m-digital-elevation-database-v4-1/
 # (use the "ArcInfo ASCII" version) and put the ZIP files directly in this
 # folder:
-SRTM_PATH="/private-backup/srtm"
+SRTM_PATH="/home/phyks/extra/srtm"
 
 mkdir tmp
 cd tmp
@@ -68,11 +68,11 @@ ${JAVA} -jar ${BROUTER_JAR} segments 16.917636 51.040949 seed 0 ${BROUTER_PROFIL
 
 ${JAVA} -cp ${BROUTER_JAR} -DuseDenseMaps=true btools.mapcreator.WayLinker unodes55 waytiles55 bordernodes.dat restrictions.dat ${BROUTER_PROFILES}/lookups.dat ${BROUTER_PROFILES}/all.brf segments rd5
 
-cd ..
-rm -rf segments
-mv tmp/segments segments
-cp /var/www/brouter/segments4/.htaccess segments
-cp /var/www/brouter/segments4/storageconfig.txt segments
-mv /var/www/brouter/segments4 /var/www/brouter/segments4_lastrun
-mv segments /var/www/brouter/segments4
-rm -rf tmp
+#cd ..
+#rm -rf segments
+#mv tmp/segments segments
+#cp /var/www/brouter/segments4/.htaccess segments
+#cp /var/www/brouter/segments4/storageconfig.txt segments
+#mv /var/www/brouter/segments4 /var/www/brouter/segments4_lastrun
+#mv segments /var/www/brouter/segments4
+#rm -rf tmp
