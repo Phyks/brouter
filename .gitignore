@@ -8,4 +8,5 @@ target/
 misc/segments4
 misc/segments4.sh
 misc/profiles2/customprofiles
+misc/scripts/mapcreation/tmp
 *.pbf
