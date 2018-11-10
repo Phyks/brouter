@@ -2,9 +2,6 @@
 # *** and avoiding car traffic, but still with
 # *** a focus on approaching your destination
 # *** efficiently.
-#
-
-# TODO: https://github.com/abrensch/brouter/issues/98
 
 ---context:global   # following code refers to global config
 
@@ -119,14 +116,34 @@ assign has_left_cycleway =
     # Along a one way path (not contraflow), any cycleway which is not
     # contraflow is a good hint.
     else if goodoneway then ( and
-        ( not cycleway:left=opposite|opposite_lane|opposite_track )
+        (
+            and
+            ( not cycleway:left=opposite|opposite_lane|opposite_track )
+            (
+                and
+                ( not ( and reversedirection=yes cycleway:left:oneway=yes ) )
+                ( not ( and ( not reversedirection=yes ) cycleway:left:oneway=-1 ) )
+            )
+        )
         ( or ( not cycleway:left=share_busway ) ( or ( not busway:left=opposite ) ( not busway=opposite ) ) )
     )
     # Along a one way path (contraflow), if we can go against traffic, there is
     # necessarily a cycleway
     else if badoneway then ( not isbadoneway )
-    # Any other cases (two way streets), depends on the direction of the path wrt to traffic
-    else or ( and is_right_side_driving ( reversedirection=yes ) ) ( and ( not is_right_side_driving ) ( not reversedirection=yes ) )
+    # Any other cases where we do have a cycleway tag (two way streets),
+    # it depends on the direction of the path wrt to traffic
+    else (
+        if is_right_side_driving then (
+            or
+            ( and ( not reversedirection=yes ) ( not cycleway:left:oneway=-1 ) )
+            ( and ( reversedirection=yes ) ( cycleway:left:oneway=-1|no ) )
+        )
+        else (
+            or
+            ( and ( reversedirection=yes ) ( not cycleway:left:oneway=-1 ) )
+            ( and ( not reversedirection=yes ) ( cycleway:left:oneway=-1|no ) )
+        )
+    )
 
 assign has_right_cycleway =
     # No cycleway hint
@@ -134,14 +151,34 @@ assign has_right_cycleway =
     # Along a one way path (not contraflow), any cycleway which is not
     # contraflow is a good hint.
     else if goodoneway then ( and
-        ( not cycleway:right=opposite|opposite_lane|opposite_track )
-        ( or ( not cycleway:right=share_busway ) ( or ( not busway:right=opposite ) ( not busway=opposite ) ) )
+        (
+            and
+            ( not cycleway:right=opposite|opposite_lane|opposite_track )
+            (
+                and
+                ( not ( and reversedirection=yes cycleway:right:oneway=yes ) )
+                ( not ( and ( not reversedirection=yes ) cycleway:right:oneway=-1 ) )
+            )
+        )
+        ( or ( not cycleway:right=share_busway ) ( or ( not busway:left=opposite ) ( not busway=opposite ) ) )
     )
     # Along a one way path (contraflow), if we can go against traffic, there is
     # necessarily a cycleway
     else if badoneway then ( not isbadoneway )
-    # Any other cases (two way streets), depends on the direction of the path wrt to traffic
-    else or ( and is_right_side_driving ( not reversedirection=yes ) ) ( and ( not is_right_side_driving ) ( reversedirection=yes ) )
+    # Any other cases where we do have a cycleway tag (two way streets),
+    # it depends on the direction of the path wrt to traffic
+    else (
+        if is_right_side_driving then (
+            or
+            ( and ( not reversedirection=yes ) ( not cycleway:right:oneway=-1 ) )
+            ( and ( reversedirection=yes ) ( cycleway:right:oneway=-1|no ) )
+        )
+        else (
+            or
+            ( and ( reversedirection=yes ) ( not cycleway:right:oneway=-1 ) )
+            ( and ( not reversedirection=yes ) ( cycleway:right:oneway=-1|no ) )
+        )
+    )
 
 # TODO: isbike could be a float value dependending on the quality of the infrastructure
 assign isbike =
@@ -255,7 +292,8 @@ assign costfactor
   else if ( highway=proposed|abandoned     ) then   10000
 
   #
-  # exclude roads under constructions
+  # put a penalty on roads under constructions
+  # See https://github.com/abrensch/brouter/issues/106 and https://github.com/abrensch/brouter/issues/62
   #
   else if ( highway=construction     ) then   100
 
