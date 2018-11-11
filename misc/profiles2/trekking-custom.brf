@@ -79,6 +79,8 @@ assign onewaypenalty =  # Penalty associated with going against traffic in a one
          # Note: We are already contraflow, so no need for more checks.
          else if ( cycleway:left=opposite|opposite_lane|opposite_track ) then 0
          else if ( cycleway:right=opposite|opposite_lane|opposite_track ) then 0
+         else if ( cycleway:left:oneway=-1|no ) then 0
+         else if ( cycleway:right:oneway=-1|no ) then 0
          # No penalty if shared_busway and busway in opposite direction
          else if ( and cycleway=share_busway ( or busway=opposite ( or busway:left=opposite busway:right=opposite ) ) ) then 0
          else if ( and cycleway:left=share_busway ( or busway:left=opposite busway=opposite ) ) then 0
@@ -180,7 +182,6 @@ assign has_right_cycleway =
         )
     )
 
-# TODO: isbike could be a float value dependending on the quality of the infrastructure
 assign isbike =
     if bicycle=yes|permissive|designated then true
     else if lcn=yes then true
