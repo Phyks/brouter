@@ -11,21 +11,21 @@ set -e
 #
 #rm -rf /var/www/brouter/segments4_lastrun
 
-JAVA='/usr/bin/java -Xmx2600m -Xms2600m -Xmn32m'
+JAVA=${JAVA:-'/usr/bin/java -Xmx2600m -Xms2600m -Xmn32m'}
 
-BROUTER_PROFILES=$(realpath "../../profiles2")
+BROUTER_PROFILES=${BROUTER_PROFILES:-$(realpath "../../profiles2")}
 
-BROUTER_JAR=$(realpath $(ls ../../../brouter-server/target/brouter-server-*-jar-with-dependencies.jar))
-OSMOSIS_JAR=$(realpath "../../pbfparser/osmosis.jar")
-PROTOBUF_JAR=$(realpath "../../pbfparser/protobuf.jar")
-PBFPARSER_JAR=$(realpath "../../pbfparser/pbfparser.jar")
+BROUTER_JAR=${BROUTER_JAR:-$(realpath $(ls ../../../brouter-server/target/brouter-server-*-jar-with-dependencies.jar))}
+OSMOSIS_JAR=${OSMOSIS_JAR:-$(realpath "../../pbfparser/osmosis.jar")}
+PROTOBUF_JAR=${PROTOBUF_JAR:-$(realpath "../../pbfparser/protobuf.jar")}
+PBFPARSER_JAR=${PBFPARSER_JAR:-$(realpath "../../pbfparser/pbfparser.jar")}
 
-PLANET_FILE=$(realpath "./planet-latest.osm.pbf")
+PLANET_FILE=${PLANET_FILE:-$(realpath "./planet-latest.osm.pbf")}
 # Download SRTM zip files from
 # https://cgiarcsi.community/data/srtm-90m-digital-elevation-database-v4-1/
 # (use the "ArcInfo ASCII" version) and put the ZIP files directly in this
 # folder:
-SRTM_PATH="/home/phyks/extra/srtm"
+SRTM_PATH=${SRTM_PATH:-"/home/phyks/extra/srtm"}
 
 mkdir tmp
 cd tmp
