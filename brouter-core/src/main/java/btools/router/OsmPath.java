@@ -25,7 +25,7 @@ abstract class OsmPath implements OsmLinkHolder
   public short selev;
 
   public int airdistance = 0; // distance to endpos
-  
+
   protected OsmNode sourceNode;
   protected OsmNode targetNode;
 
@@ -129,7 +129,7 @@ abstract class OsmPath implements OsmLinkHolder
     init( origin );
     addAddionalPenalty(refTrack, detailMode, origin, link, rc );
   }
-  
+
   protected abstract void init( OsmPath orig );
 
   protected abstract void resetState();
@@ -191,7 +191,7 @@ abstract class OsmPath implements OsmLinkHolder
     lastClassifier = newClassifier;
     lastInitialCost = newInitialCost;
 
-    // *** destination logic: no destination access in between 
+    // *** destination logic: no destination access in between
     int classifiermask = (int)rc.expctxWay.getClassifierMask();
     boolean newDestination = (classifiermask & 64) != 0;
     boolean oldDestination = getBit( IS_ON_DESTINATION_BIT );
@@ -217,14 +217,14 @@ abstract class OsmPath implements OsmLinkHolder
       }
     }
     setBit( IS_ON_DESTINATION_BIT, newDestination );
-    
+
 
     OsmTransferNode transferNode = link.geometry == null ? null
                   : rc.geometryDecoder.decodeGeometry( link.geometry, sourceNode, targetNode, isReverse );
 
     for(int nsection=0; ;nsection++)
     {
-    
+
       originLon = lon1;
       originLat = lat1;
 
@@ -300,7 +300,7 @@ abstract class OsmPath implements OsmLinkHolder
       }
 
       int dist = rc.calcDistance( lon1, lat1, lon2, lat2 );
-      
+
       boolean stopAtEndpoint = false;
       if ( rc.shortestmatch )
       {
@@ -371,7 +371,7 @@ abstract class OsmPath implements OsmLinkHolder
 
       double elevation = ele2 == Short.MIN_VALUE ? 100. : ele2/4.;
 
-      double sectionCost = processWaySection( rc, dist, delta_h, elevation, angle, cosangle, isStartpoint, nsection, lastpriorityclassifier );
+      double sectionCost = processWaySection( rc, dist, delta_h, elevation, angle, cosangle, isStartpoint, nsection, lastpriorityclassifier, detailMode );
       if ( ( sectionCost < 0. || costfactor > 9998. && !detailMode ) || sectionCost + cost >= 2000000000. )
       {
         cost = -1;
@@ -478,7 +478,7 @@ abstract class OsmPath implements OsmLinkHolder
     return (short)( e1*(1.-fraction) + e2*fraction );
   }
 
-  protected abstract double processWaySection( RoutingContext rc, double dist, double delta_h, double elevation, double angle, double cosangle, boolean isStartpoint, int nsection, int lastpriorityclassifier );
+  protected abstract double processWaySection( RoutingContext rc, double dist, double delta_h, double elevation, double angle, double cosangle, boolean isStartpoint, int nsection, int lastpriorityclassifier, boolean detailMode );
 
   protected abstract double processTargetNode( RoutingContext rc );
 
@@ -516,7 +516,7 @@ abstract class OsmPath implements OsmLinkHolder
   {
     return 0.;
   }
-  
+
   public double getTotalEnergy()
   {
     return 0.;

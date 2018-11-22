@@ -40,7 +40,7 @@ final class StdPath extends OsmPath
   }
 
   @Override
-  protected double processWaySection( RoutingContext rc, double distance, double delta_h, double elevation, double angle, double cosangle, boolean isStartpoint, int nsection, int lastpriorityclassifier )
+  protected double processWaySection( RoutingContext rc, double distance, double delta_h, double elevation, double angle, double cosangle, boolean isStartpoint, int nsection, int lastpriorityclassifier, boolean detailMode )
   {
     // calculate the costfactor inputs
     float turncostbase = rc.expctxWay.getTurncost();
@@ -146,7 +146,7 @@ final class StdPath extends OsmPath
 
     sectionCost += dist * costfactor + 0.5f;
 
-    if (rc.bikeMode || rc.footMode) {
+    if (detailMode && (rc.bikeMode || rc.footMode)) {
       // Uphill angle
       double alpha = Math.atan2(delta_h, distance);
 
