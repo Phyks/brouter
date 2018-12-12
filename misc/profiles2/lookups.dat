@@ -1,5 +1,5 @@
 ---lookupversion:10
----minorversion:9
+---minorversion:10
 
 ---context:way
 
@@ -56,7 +56,7 @@ surface;0000560191 ground
 surface;0000350378 dirt
 surface;0000237226 grass
 surface;0000212587 concrete concrete:plates concrete:lanes
-surface;0000188743 paving_stones paving_stones:30
+surface;0000188743 paving_stones paving_stones:30 paving_stones:20
 surface;0000113800 cobblestone cobblestone:flattened
 surface;0000093164 compacted
 surface;0000091171 sand dirt/sand
@@ -586,6 +586,17 @@ cycleway:right:oneway;0000000017 -1
 
 zone:maxspeed;0000001616 20 DE:20 FR:20
 zone:maxspeed;0000063721 30 DE:30 FR:30 BE:30 HU:30 NO:30 AT:30 ES:30 NL:30
+
+cycleway:surface;0000002609 asphalt
+cycleway:surface;0000000150 paved
+cycleway:surface;0000000012 unpaved
+cycleway:surface;0000000010 gravel
+cycleway:surface;0000000157 concrete concrete:plates concrete:lanes
+cycleway:surface;0000002239 paving_stones paving_stones:30 paving_stones:20
+cycleway:surface;0000000011 cobblestone cobblestone:flattened
+cycleway:surface;0000000013 compacted
+cycleway:surface;0000000006 fine_gravel
+cycleway:surface;0000000011 sett
 
 ---context:node
 
