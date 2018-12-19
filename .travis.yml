@@ -1,0 +1,14 @@
+matrix:
+  include:
+    - language: java
+      install: mvn install -pl brouter-server -am -DskipTests=true -Dmaven.javadoc.skip=true -B -V
+      script: mvn test -B -V -pl brouter-server -am
+
+    - language: android
+      android:
+        components:
+          - build-tools-26.0.2
+          - android-26
+          - extra
+      install: mvn install -pl brouter-routing-app -am -DskipTests=true -Dmaven.javadoc.skip=true -B -V
+      script: mvn test -B -V -pl brouter-routing-app -am
