@@ -27,13 +27,13 @@ public class OsmCutter extends MapCreatorBase
   private long changesetsParsed;
 
   private DataOutputStream wayDos;
-  private DataOutputStream cyclewayDos;
+  private DataOutputStream relationDos;
   private DataOutputStream restrictionsDos;
 
   public WayCutter wayCutter;
   public RestrictionCutter restrictionCutter;
   public NodeFilter nodeFilter;
-  
+
   public static void main(String[] args) throws Exception
   {
     System.out.println("*** OsmCutter: cut an osm map in node-tiles + a way file");
@@ -75,7 +75,7 @@ public class OsmCutter extends MapCreatorBase
     meta.readMetaData( lookupFile );
     _expctxWay.parseFile( profileFile, "global" );
 
-    
+
    // _expctxWayStat = new BExpressionContextWay( null );
    // _expctxNodeStat = new BExpressionContextNode( null );
 
@@ -83,7 +83,7 @@ public class OsmCutter extends MapCreatorBase
     if ( !outTileDir.isDirectory() ) throw new RuntimeException( "out tile directory " + outTileDir + " does not exist" );
 
     wayDos = wayFile == null ? null : new DataOutputStream( new BufferedOutputStream( new FileOutputStream( wayFile ) ) );
-    cyclewayDos = new DataOutputStream( new BufferedOutputStream( new FileOutputStream( relFile ) ) );
+    relationDos = new DataOutputStream( new BufferedOutputStream( new FileOutputStream( relFile ) ) );
     if ( resFile != null )
     {
       restrictionsDos = new DataOutputStream( new BufferedOutputStream( new FileOutputStream( resFile ) ) );
@@ -93,7 +93,7 @@ public class OsmCutter extends MapCreatorBase
     long t0 = System.currentTimeMillis();
     new OsmParser().readMap( mapFile, this, this, this );
     long t1 = System.currentTimeMillis();
-    
+
     System.out.println( "parsing time (ms) =" + (t1-t0) );
 
     // close all files
@@ -102,7 +102,7 @@ public class OsmCutter extends MapCreatorBase
     {
       wayDos.close();
     }
-    cyclewayDos.close();
+    relationDos.close();
     if ( restrictionsDos != null )
     {
       restrictionsDos.close();
@@ -159,12 +159,12 @@ public class OsmCutter extends MapCreatorBase
   private void generatePseudoTags( HashMap<String,String> map )
   {
     // add pseudo.tags for concrete:lanes and concrete:plates
-  
+
     String concrete = null;
     for( Map.Entry<String,String> e : map.entrySet() )
     {
       String key = e.getKey();
-    
+
       if ( "concrete".equals( key ) )
       {
         return;
@@ -204,16 +204,16 @@ public class OsmCutter extends MapCreatorBase
       // _expctxWayStat.addLookupValue( key, value, null );
     }
     w.description = _expctxWay.encode(lookupData);
-    
+
     if ( w.description == null ) return;
 
     // filter according to profile
     _expctxWay.evaluate( false, w.description );
-    boolean ok = _expctxWay.getCostfactor() < 10000.; 
+    boolean ok = _expctxWay.getCostfactor() < 10000.;
     _expctxWay.evaluate( true, w.description );
     ok |= _expctxWay.getCostfactor() < 10000.;
     if ( !ok ) return;
-    
+
     if ( wayDos != null )
     {
       w.writeTo( wayDos );
@@ -235,26 +235,38 @@ public class OsmCutter extends MapCreatorBase
     checkStats();
 
     String route = r.getTag( "route" );
-    // filter out non-cycle relations
-    if ( route == null )
+    String type = r.getTag( "type" );
+    // handle cycle route relations
+    if ( "route".equals(type) && route != null )
     {
-      return;
+        String network =  r.getTag( "network" );
+        if ( network == null ) network = "";
+        String state =  r.getTag( "state" );
+        if ( state == null ) state = "";
+        writeId( relationDos, r.rid );
+        relationDos.writeUTF( type );
+        relationDos.writeUTF( route );
+        relationDos.writeUTF( network );
+        relationDos.writeUTF( state );
+        for ( int i=0; i<r.ways.size();i++ )
+        {
+            long wid = r.ways.get(i);
+            writeId( relationDos, wid );
+        }
+        writeId( relationDos, -1 );
     }
-
-    String network =  r.getTag( "network" );
-    if ( network == null ) network = "";
-    String state =  r.getTag( "state" );
-    if ( state == null ) state = "";
-    writeId( cyclewayDos, r.rid );
-    cyclewayDos.writeUTF( route );
-    cyclewayDos.writeUTF( network );
-    cyclewayDos.writeUTF( state );
-    for ( int i=0; i<r.ways.size();i++ )
-    {
-      long wid = r.ways.get(i);
-      writeId( cyclewayDos, wid );
+    // handle multipolygon relations
+    else if ( "multipolygon".equals(type) ) {
+        writeId( relationDos, r.rid );
+        relationDos.writeUTF( type );
+        // TODO
+        for ( int i=0; i<r.ways.size();i++ )
+        {
+            long wid = r.ways.get(i);
+            writeId( relationDos, wid );
+        }
+        writeId( relationDos, -1 );
     }
-    writeId( cyclewayDos, -1 );
   }
 
   @Override
@@ -303,7 +315,7 @@ public class OsmCutter extends MapCreatorBase
     res.fromWid = fromWid;
     res.toWid = toWid;
     res.viaNid = viaNid;
-    
+
     if ( restrictionsDos != null )
     {
       res.writeTo( restrictionsDos );
@@ -312,7 +324,7 @@ public class OsmCutter extends MapCreatorBase
     {
       restrictionCutter.nextRestriction( res );
     }
-    
+
   }
 
   private static short toBit( String tag, int bitpos, String s )
